@@ -268,6 +268,10 @@ func Run(
 				tel,
 				tlsConfig,
 				func(ctx context.Context, e *smtpx.Event) {
+					if shouldIgnoreSMTPEvent(e) {
+						return
+					}
+
 					events.Emit(ctx, SMTPEvent(e))
 				},
 			),

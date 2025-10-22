@@ -39,6 +39,8 @@ sidebar_position: 2
 
   ![SMTP notification EML](../assets/smtp_notification_eml_dark.png#gh-dark-mode-only)![SMTP notification EML](../assets/smtp_notification_eml_light.png#gh-light-mode-only)
 
+- To enable the temporary ignore hotfix for noisy bounce reports, set the `IGNORE=1` environment variable before starting the server. When enabled, Sonar will drop SMTP events sent from `mailer-daemon@googlemail.com` with the subject `Undelivered Mail Returned to Sender`.
+
 ## FTP
 
 - FTP listener runs on port **21**.
