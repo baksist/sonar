@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	ignoreSMTPHotfixEnvVar   = "IGNORE"
-	ignoreSMTPHotfixMailFrom = "mailer-daemon@googlemail.com"
-	ignoreSMTPHotfixSubject  = "Undelivered Mail Returned to Sender"
+	ignoreSMTPHotfixEnvVar   = "IGNORE_CITYDRIVE"
+	ignoreSMTPHotfixMailFrom = "no-reply@b24-glztdv.bitrix24.ru"
+	ignoreSMTPHotfixSubject  = "Гайд по Ситидрайв для Бизнеса"
 )
 
 func shouldIgnoreSMTPEvent(e *smtpx.Event) bool {
