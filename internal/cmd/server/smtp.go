@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"net"
 	"net/mail"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/structs"
@@ -17,6 +19,28 @@ import (
 	"github.com/nt0xa/sonar/pkg/smtpx"
 	"github.com/nt0xa/sonar/pkg/telemetry"
 )
+
+const (
+	ignoreSMTPHotfixEnvVar   = "IGNORE"
+	ignoreSMTPHotfixMailFrom = "mailer-daemon@googlemail.com"
+	ignoreSMTPHotfixSubject  = "Undelivered Mail Returned to Sender"
+)
+
+func shouldIgnoreSMTPEvent(e *smtpx.Event) bool {
+	if os.Getenv(ignoreSMTPHotfixEnvVar) != "1" {
+		return false
+	}
+
+	if e == nil || e.Data == nil {
+		return false
+	}
+
+	if !strings.EqualFold(e.Data.MailFrom, ignoreSMTPHotfixMailFrom) {
+		return false
+	}
+
+	return e.Email.Subject == ignoreSMTPHotfixSubject
+}
 
 func SMTPListenerWrapper(maxBytes int64, idleTimeout time.Duration) func(net.Listener) net.Listener {
 	return func(l net.Listener) net.Listener {
