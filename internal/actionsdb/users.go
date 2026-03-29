@@ -10,13 +10,14 @@ import (
 
 func User(m database.User) actions.User {
 	return actions.User{
-		Name:       m.Name,
-		IsAdmin:    m.IsAdmin,
-		CreatedAt:  m.CreatedAt,
-		APIToken:   m.APIToken,
-		TelegramID: m.TelegramID,
-		LarkID:     m.LarkID,
-		SlackID:    m.SlackID,
+		Name:         m.Name,
+		IsAdmin:      m.IsAdmin,
+		CreatedAt:    m.CreatedAt,
+		APIToken:     m.APIToken,
+		TelegramID:   m.TelegramID,
+		LarkID:       m.LarkID,
+		SlackID:      m.SlackID,
+		MattermostID: m.MattermostID,
 	}
 }
 
@@ -35,13 +36,14 @@ func (act *dbactions) UsersCreate(ctx context.Context, p actions.UsersCreatePara
 	}
 
 	rec, err := act.db.UsersCreate(ctx, database.UsersCreateParams{
-		Name:       p.Name,
-		IsAdmin:    p.IsAdmin,
-		CreatedBy:  &u.ID,
-		APIToken:   p.APIToken,
-		TelegramID: p.TelegramID,
-		LarkID:     p.LarkID,
-		SlackID:    p.SlackID,
+		Name:         p.Name,
+		IsAdmin:      p.IsAdmin,
+		CreatedBy:    &u.ID,
+		APIToken:     p.APIToken,
+		TelegramID:   p.TelegramID,
+		LarkID:       p.LarkID,
+		SlackID:      p.SlackID,
+		MattermostID: p.MattermostID,
 	})
 	if err != nil {
 		return nil, errors.Internal(err)

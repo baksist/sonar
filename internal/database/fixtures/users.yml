@@ -4,6 +4,7 @@
   telegram_id: 31337
   api_token: 50c862e41d059eeca13adc7b276b46b7
   lark_id: 8b55131
+  mattermost_id: mm_user1
 
 - id: 2
   name: user2
@@ -20,3 +21,4 @@
   api_token: a33bfdbfb3c62feb7ea59314dbd17426
   lark_id: bca2924
   slack_id: e9ab95
+  mattermost_id: mm_admin

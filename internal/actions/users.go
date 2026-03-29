@@ -21,13 +21,14 @@ type UsersActions interface {
 }
 
 type User struct {
-	Name       string    `json:"name" audit:"name"`
-	IsAdmin    bool      `json:"isAdmin" audit:"is_admin"`
-	APIToken   *string   `json:"apiToken,omitempty"`
-	TelegramID *int64    `json:"telegramId,omitempty" audit:"telegram_id,omitempty"`
-	LarkID     *string   `json:"larkId,omitempty" audit:"lark_id,omitempty"`
-	SlackID    *string   `json:"slackId,omitempty" audit:"slack_id,omitempty"`
-	CreatedAt  time.Time `json:"createdAt"`
+	Name         string    `json:"name" audit:"name"`
+	IsAdmin      bool      `json:"isAdmin" audit:"is_admin"`
+	APIToken     *string   `json:"apiToken,omitempty"`
+	TelegramID   *int64    `json:"telegramId,omitempty" audit:"telegram_id,omitempty"`
+	LarkID       *string   `json:"larkId,omitempty" audit:"lark_id,omitempty"`
+	SlackID      *string   `json:"slackId,omitempty" audit:"slack_id,omitempty"`
+	MattermostID *string   `json:"mattermostId,omitempty" audit:"mattermost_id,omitempty"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 //
@@ -35,12 +36,13 @@ type User struct {
 //
 
 type UsersCreateParams struct {
-	Name       string  `json:"name"`
-	APIToken   *string `json:"apiToken,omitempty"`
-	TelegramID *int64  `json:"telegramId,omitempty"`
-	LarkID     *string `json:"larkId,omitempty"`
-	SlackID    *string `json:"slackId,omitempty"`
-	IsAdmin    bool    `json:"isAdmin"`
+	Name         string  `json:"name"`
+	APIToken     *string `json:"apiToken,omitempty"`
+	TelegramID   *int64  `json:"telegramId,omitempty"`
+	LarkID       *string `json:"larkId,omitempty"`
+	SlackID      *string `json:"slackId,omitempty"`
+	MattermostID *string `json:"mattermostId,omitempty"`
+	IsAdmin      bool    `json:"isAdmin"`
 }
 
 func (p UsersCreateParams) Validate() error {
@@ -65,10 +67,11 @@ func UsersCreateCommand(acts *Actions, p *UsersCreateParams, local bool) (*cobra
 	}
 
 	var (
-		apiToken   string
-		telegramID int64
-		larkID     string
-		slackID    string
+		apiToken     string
+		telegramID   int64
+		larkID       string
+		slackID      string
+		mattermostID string
 	)
 
 	cmd.Flags().BoolVarP(&p.IsAdmin, "admin", "a", false, "Admin user")
@@ -76,6 +79,7 @@ func UsersCreateCommand(acts *Actions, p *UsersCreateParams, local bool) (*cobra
 	cmd.Flags().Int64Var(&telegramID, "telegram", 0, "Telegram user ID")
 	cmd.Flags().StringVar(&larkID, "lark", "", "Lark user ID")
 	cmd.Flags().StringVar(&slackID, "slack", "", "Slack user ID")
+	cmd.Flags().StringVar(&mattermostID, "mattermost", "", "Mattermost user ID")
 
 	return cmd, func(cmd *cobra.Command, args []string) errors.Error {
 		p.Name = args[0]
@@ -94,6 +98,10 @@ func UsersCreateCommand(acts *Actions, p *UsersCreateParams, local bool) (*cobra
 
 		if cmd.Flags().Changed("slack") {
 			p.SlackID = &slackID
+		}
+
+		if cmd.Flags().Changed("mattermost") {
+			p.MattermostID = &mattermostID
 		}
 
 		return nil

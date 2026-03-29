@@ -10,19 +10,20 @@ import (
 )
 
 const usersCreate = `-- name: UsersCreate :one
-INSERT INTO users (name, is_admin, created_by, api_token, telegram_id, lark_id, slack_id, created_at)
-VALUES ($1, $2, $3, COALESCE(NULLIF($4, ''), encode(gen_random_bytes(16), 'hex')), $5, $6, $7, now())
-RETURNING id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token
+INSERT INTO users (name, is_admin, created_by, api_token, telegram_id, lark_id, slack_id, mattermost_id, created_at)
+VALUES ($1, $2, $3, COALESCE(NULLIF($4, ''), encode(gen_random_bytes(16), 'hex')), $5, $6, $7, $8, now())
+RETURNING id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id
 `
 
 type UsersCreateParams struct {
-	Name       string  `db:"name"`
-	IsAdmin    bool    `db:"is_admin"`
-	CreatedBy  *int64  `db:"created_by"`
-	APIToken   *string `db:"api_token"`
-	TelegramID *int64  `db:"telegram_id"`
-	LarkID     *string `db:"lark_id"`
-	SlackID    *string `db:"slack_id"`
+	Name         string  `db:"name"`
+	IsAdmin      bool    `db:"is_admin"`
+	CreatedBy    *int64  `db:"created_by"`
+	APIToken     *string `db:"api_token"`
+	TelegramID   *int64  `db:"telegram_id"`
+	LarkID       *string `db:"lark_id"`
+	SlackID      *string `db:"slack_id"`
+	MattermostID *string `db:"mattermost_id"`
 }
 
 func (q *Queries) UsersCreate(ctx context.Context, arg UsersCreateParams) (*User, error) {
@@ -34,6 +35,7 @@ func (q *Queries) UsersCreate(ctx context.Context, arg UsersCreateParams) (*User
 		arg.TelegramID,
 		arg.LarkID,
 		arg.SlackID,
+		arg.MattermostID,
 	)
 	var i User
 	err := row.Scan(
@@ -46,6 +48,7 @@ func (q *Queries) UsersCreate(ctx context.Context, arg UsersCreateParams) (*User
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
@@ -60,7 +63,7 @@ func (q *Queries) UsersDelete(ctx context.Context, id int64) error {
 }
 
 const usersGetByAPIToken = `-- name: UsersGetByAPIToken :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE api_token = $1::text
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE api_token = $1::text
 `
 
 func (q *Queries) UsersGetByAPIToken(ctx context.Context, token string) (*User, error) {
@@ -76,12 +79,13 @@ func (q *Queries) UsersGetByAPIToken(ctx context.Context, token string) (*User, 
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersGetByID = `-- name: UsersGetByID :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE id = $1
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE id = $1
 `
 
 func (q *Queries) UsersGetByID(ctx context.Context, id int64) (*User, error) {
@@ -97,12 +101,13 @@ func (q *Queries) UsersGetByID(ctx context.Context, id int64) (*User, error) {
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersGetByLarkID = `-- name: UsersGetByLarkID :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE lark_id = $1::text
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE lark_id = $1::text
 `
 
 func (q *Queries) UsersGetByLarkID(ctx context.Context, id string) (*User, error) {
@@ -118,12 +123,35 @@ func (q *Queries) UsersGetByLarkID(ctx context.Context, id string) (*User, error
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
+	)
+	return &i, err
+}
+
+const usersGetByMattermostID = `-- name: UsersGetByMattermostID :one
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE mattermost_id = $1::text
+`
+
+func (q *Queries) UsersGetByMattermostID(ctx context.Context, id string) (*User, error) {
+	row := q.db.QueryRow(ctx, usersGetByMattermostID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.IsAdmin,
+		&i.CreatedBy,
+		&i.TelegramID,
+		&i.SlackID,
+		&i.LarkID,
+		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersGetByName = `-- name: UsersGetByName :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE name = $1
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE name = $1
 `
 
 func (q *Queries) UsersGetByName(ctx context.Context, name string) (*User, error) {
@@ -139,12 +167,13 @@ func (q *Queries) UsersGetByName(ctx context.Context, name string) (*User, error
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersGetBySlackID = `-- name: UsersGetBySlackID :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE slack_id = $1::text
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE slack_id = $1::text
 `
 
 func (q *Queries) UsersGetBySlackID(ctx context.Context, id string) (*User, error) {
@@ -160,12 +189,13 @@ func (q *Queries) UsersGetBySlackID(ctx context.Context, id string) (*User, erro
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersGetByTelegramID = `-- name: UsersGetByTelegramID :one
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users WHERE telegram_id = $1::bigint
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users WHERE telegram_id = $1::bigint
 `
 
 func (q *Queries) UsersGetByTelegramID(ctx context.Context, id int64) (*User, error) {
@@ -181,12 +211,13 @@ func (q *Queries) UsersGetByTelegramID(ctx context.Context, id int64) (*User, er
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }
 
 const usersList = `-- name: UsersList :many
-SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token FROM users
+SELECT id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id FROM users
 `
 
 func (q *Queries) UsersList(ctx context.Context) ([]*User, error) {
@@ -208,6 +239,7 @@ func (q *Queries) UsersList(ctx context.Context) ([]*User, error) {
 			&i.SlackID,
 			&i.LarkID,
 			&i.APIToken,
+			&i.MattermostID,
 		); err != nil {
 			return nil, err
 		}
@@ -228,20 +260,22 @@ SET
   api_token = $5,
   telegram_id = $6,
   lark_id = $7,
-  slack_id = $8
+  slack_id = $8,
+  mattermost_id = $9
 WHERE id = $1
-RETURNING id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token
+RETURNING id, name, created_at, is_admin, created_by, telegram_id, slack_id, lark_id, api_token, mattermost_id
 `
 
 type UsersUpdateParams struct {
-	ID         int64   `db:"id"`
-	Name       string  `db:"name"`
-	IsAdmin    bool    `db:"is_admin"`
-	CreatedBy  *int64  `db:"created_by"`
-	APIToken   *string `db:"api_token"`
-	TelegramID *int64  `db:"telegram_id"`
-	LarkID     *string `db:"lark_id"`
-	SlackID    *string `db:"slack_id"`
+	ID           int64   `db:"id"`
+	Name         string  `db:"name"`
+	IsAdmin      bool    `db:"is_admin"`
+	CreatedBy    *int64  `db:"created_by"`
+	APIToken     *string `db:"api_token"`
+	TelegramID   *int64  `db:"telegram_id"`
+	LarkID       *string `db:"lark_id"`
+	SlackID      *string `db:"slack_id"`
+	MattermostID *string `db:"mattermost_id"`
 }
 
 func (q *Queries) UsersUpdate(ctx context.Context, arg UsersUpdateParams) (*User, error) {
@@ -254,6 +288,7 @@ func (q *Queries) UsersUpdate(ctx context.Context, arg UsersUpdateParams) (*User
 		arg.TelegramID,
 		arg.LarkID,
 		arg.SlackID,
+		arg.MattermostID,
 	)
 	var i User
 	err := row.Scan(
@@ -266,6 +301,7 @@ func (q *Queries) UsersUpdate(ctx context.Context, arg UsersUpdateParams) (*User
 		&i.SlackID,
 		&i.LarkID,
 		&i.APIToken,
+		&i.MattermostID,
 	)
 	return &i, err
 }

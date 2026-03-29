@@ -12,6 +12,7 @@ import (
 	"github.com/nt0xa/sonar/internal/modules"
 	"github.com/nt0xa/sonar/internal/modules/api"
 	"github.com/nt0xa/sonar/internal/modules/lark"
+	"github.com/nt0xa/sonar/internal/modules/mattermost"
 	"github.com/nt0xa/sonar/internal/modules/slack"
 	"github.com/nt0xa/sonar/internal/modules/telegram"
 	"github.com/nt0xa/sonar/pkg/telemetry"
@@ -26,16 +27,17 @@ type ModulesConfig struct {
 
 	// TODO: dynamic modules config (something like json.RawMessage) to be able to not include
 	// unnecessary modules in binary.
-	Telegram telegram.Config
-	API      api.Config
-	Lark     lark.Config
-	Slack    slack.Config
+	Telegram   telegram.Config
+	API        api.Config
+	Lark       lark.Config
+	Slack      slack.Config
+	Mattermost mattermost.Config
 }
 
 func (c ModulesConfig) Validate() error {
 	rules := make([]*validation.FieldRules, 0)
 	rules = append(rules, validation.Field(&c.Enabled,
-		validation.Each(validation.In("telegram", "api", "lark", "slack"))))
+		validation.Each(validation.In("telegram", "api", "lark", "slack", "mattermost"))))
 
 	// TODO: dynamic modules registration. Something like sql drivers
 	for _, name := range c.Enabled {
@@ -49,6 +51,9 @@ func (c ModulesConfig) Validate() error {
 
 		case "lark":
 			rules = append(rules, validation.Field(&c.Lark))
+
+		case "mattermost":
+			rules = append(rules, validation.Field(&c.Mattermost))
 		}
 	}
 
@@ -89,6 +94,9 @@ func Modules(
 
 		case "slack":
 			m, err = slack.New(&cfg.Slack, db, log.With("package", "slack"), tel, actions, domain)
+
+		case "mattermost":
+			m, err = mattermost.New(&cfg.Mattermost, db, log.With("package", "mattermost"), tel, actions, domain)
 
 		}
 

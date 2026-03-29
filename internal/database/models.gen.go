@@ -119,10 +119,11 @@ func AllAuditRecordResourceTypeValues() []AuditRecordResourceType {
 type AuditRecordSourceType string
 
 const (
-	AuditRecordSourceTypeAPI      AuditRecordSourceType = "api"
-	AuditRecordSourceTypeTelegram AuditRecordSourceType = "telegram"
-	AuditRecordSourceTypeLark     AuditRecordSourceType = "lark"
-	AuditRecordSourceTypeSlack    AuditRecordSourceType = "slack"
+	AuditRecordSourceTypeAPI        AuditRecordSourceType = "api"
+	AuditRecordSourceTypeTelegram   AuditRecordSourceType = "telegram"
+	AuditRecordSourceTypeLark       AuditRecordSourceType = "lark"
+	AuditRecordSourceTypeSlack      AuditRecordSourceType = "slack"
+	AuditRecordSourceTypeMattermost AuditRecordSourceType = "mattermost"
 )
 
 func (e *AuditRecordSourceType) Scan(src interface{}) error {
@@ -166,6 +167,7 @@ func AllAuditRecordSourceTypeValues() []AuditRecordSourceType {
 		AuditRecordSourceTypeTelegram,
 		AuditRecordSourceTypeLark,
 		AuditRecordSourceTypeSlack,
+		AuditRecordSourceTypeMattermost,
 	}
 }
 
@@ -344,13 +346,14 @@ type Payload struct {
 }
 
 type User struct {
-	ID         int64     `db:"id"`
-	Name       string    `db:"name"`
-	CreatedAt  time.Time `db:"created_at"`
-	IsAdmin    bool      `db:"is_admin"`
-	CreatedBy  *int64    `db:"created_by"`
-	TelegramID *int64    `db:"telegram_id"`
-	SlackID    *string   `db:"slack_id"`
-	LarkID     *string   `db:"lark_id"`
-	APIToken   *string   `db:"api_token"`
+	ID           int64     `db:"id"`
+	Name         string    `db:"name"`
+	CreatedAt    time.Time `db:"created_at"`
+	IsAdmin      bool      `db:"is_admin"`
+	CreatedBy    *int64    `db:"created_by"`
+	TelegramID   *int64    `db:"telegram_id"`
+	SlackID      *string   `db:"slack_id"`
+	LarkID       *string   `db:"lark_id"`
+	APIToken     *string   `db:"api_token"`
+	MattermostID *string   `db:"mattermost_id"`
 }

@@ -44,7 +44,8 @@ func (act *dbactions) writeAudit(ctx context.Context, action database.AuditRecor
 		case database.AuditRecordSourceTypeAPI,
 			database.AuditRecordSourceTypeTelegram,
 			database.AuditRecordSourceTypeLark,
-			database.AuditRecordSourceTypeSlack:
+			database.AuditRecordSourceTypeSlack,
+			database.AuditRecordSourceTypeMattermost:
 			source = database.AuditRecordSourceType(s)
 		}
 	}
@@ -62,6 +63,10 @@ func (act *dbactions) writeAudit(ctx context.Context, action database.AuditRecor
 	case database.AuditRecordSourceTypeSlack:
 		if u.SlackID != nil {
 			actorMeta["slack_id"] = *u.SlackID
+		}
+	case database.AuditRecordSourceTypeMattermost:
+		if u.MattermostID != nil {
+			actorMeta["mattermost_id"] = *u.MattermostID
 		}
 	}
 

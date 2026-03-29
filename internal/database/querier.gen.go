@@ -50,6 +50,7 @@ type Querier interface {
 	UsersGetByAPIToken(ctx context.Context, token string) (*User, error)
 	UsersGetByID(ctx context.Context, id int64) (*User, error)
 	UsersGetByLarkID(ctx context.Context, id string) (*User, error)
+	UsersGetByMattermostID(ctx context.Context, id string) (*User, error)
 	UsersGetByName(ctx context.Context, name string) (*User, error)
 	UsersGetBySlackID(ctx context.Context, id string) (*User, error)
 	UsersGetByTelegramID(ctx context.Context, id int64) (*User, error)
