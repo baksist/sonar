@@ -185,7 +185,10 @@ func (tg *Telegram) processUpdate(ctx context.Context, msg *tgbotapi.Message) er
 
 	// Ignore error because user=nil is unauthorized user and there are
 	// some commands available for unauthorized users (e.g. "/id")
-	chatUser, _ := tg.db.UsersGetByTelegramID(ctx, chat.ID)
+	chatUser, err := tg.db.UsersGetByTelegramID(ctx, chat.ID)
+	if err != nil {
+		chatUser = nil
+	}
 	ctx = actionsdb.SetUser(ctx, chatUser)
 	ctx = actionsdb.SetSource(ctx, "telegram")
 	ctx = setMsgInfo(ctx, chat.ID, msg.MessageID)
