@@ -44,11 +44,13 @@ var templatesMap = map[string]string{
 //
 
 var profileGet = `<bold>Name:</bold> <code>{{ .Name }}</code>
-{{ if .Params.TelegramID }}<bold>Telegram ID:</bold> <code>{{ .Params.TelegramID }}</code>
+{{ if .TelegramID }}<bold>Telegram ID:</bold> <code>{{ .TelegramID }}</code>
 {{ end -}}
-{{ if .Params.LarkUserID }}<bold>Lark ID:</bold> <code>{{ .Params.LarkUserID }}</code>
+{{ if .LarkID }}<bold>Lark ID:</bold> <code>{{ .LarkID }}</code>
 {{ end -}}
-<bold>API token:</bold> <code>{{ .Params.APIToken }}</code>
+{{ if .MattermostID }}<bold>Mattermost ID:</bold> <code>{{ .MattermostID }}</code>
+{{ end -}}
+<bold>API token:</bold> <code>{{ .APIToken }}</code>
 <bold>Admin:</bold> <code>{{ .IsAdmin }}</code>`
 
 //
