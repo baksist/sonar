@@ -7,7 +7,7 @@ ENV GO111MODULE on
 ENV GOOS linux
 ENV CGO_ENABLED 0
 WORKDIR /opt/app
-RUN make build/server
+RUN make build/server EXEC=
 
 FROM alpine:latest
 RUN apk add --no-cache ca-certificates
