@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
 	mattermost "github.com/mattermost/mattermost/server/public/model"
 
@@ -65,9 +66,18 @@ func New(cfg *Config, db *database.DB, log *slog.Logger, tel telemetry.Telemetry
 func (mm *Mattermost) Start() error {
 	wsURL := strings.Replace(mm.url, "http", "ws", 1)
 
-	wsClient, _ := mattermost.NewWebSocketClient4(wsURL, mm.client.AuthToken)
+	mm.log.Info("Starting Mattermost WebSocket client")
 
-	go func() {
+	for {
+		wsClient, err := mattermost.NewWebSocketClient4(wsURL, mm.client.AuthToken)
+		if err != nil {
+			mm.log.Error("mattermost websocket connect failed, retrying in 5s", "err", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		wsClient.Listen()
+
 		for evt := range wsClient.EventChannel {
 			switch evt.EventType() {
 			case mattermost.WebsocketEventPosted:
@@ -83,16 +93,14 @@ func (mm *Mattermost) Start() error {
 				mm.processCommand(context.TODO(), &post)
 			}
 		}
-	}()
 
-	mm.log.Info("Starting Mattermost WebSocket client")
-	wsClient.Listen()
-
-	if wsClient.ListenError != nil {
-		return fmt.Errorf("mattermost websocket error: %w", wsClient.ListenError)
+		if wsClient.ListenError != nil {
+			mm.log.Error("mattermost websocket disconnected, reconnecting in 5s", "err", wsClient.ListenError)
+		} else {
+			mm.log.Warn("mattermost websocket closed, reconnecting in 5s")
+		}
+		time.Sleep(5 * time.Second)
 	}
-
-	return nil
 }
 
 func (mm *Mattermost) processCommand(ctx context.Context, post *mattermost.Post) {
@@ -105,7 +113,6 @@ func (mm *Mattermost) processCommand(ctx context.Context, post *mattermost.Post)
 	default:
 		uid = post.ChannelId
 	}
-	mm.log.Info("channel", "ch", mmChannel.Name)
 
 	chatUser, err := mm.db.UsersGetByMattermostID(ctx, uid)
 	if err != nil {
