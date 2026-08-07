@@ -55,6 +55,9 @@ func Build(n *modules.Notification, body string) (string, error) {
 			}
 			fmt.Fprintf(&sb, "**From**: %s\n", strings.Join(addrs, ", "))
 		}
+		if to := n.Event.Meta.SMTP.Recipients(); len(to) > 0 {
+			fmt.Fprintf(&sb, "**To**: %s\n", strings.Join(to, ", "))
+		}
 		if email.Subject != "" {
 			fmt.Fprintf(&sb, "**Subject**: %s\n", email.Subject)
 		}

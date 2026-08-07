@@ -280,6 +280,24 @@ func Build(n *modules.Notification, rw []byte) ([]byte, error) {
 			}}
 		}
 
+		if to := n.Event.Meta.SMTP.Recipients(); len(to) > 0 {
+			row.Columns[0].Elements = append(row.Columns[0].Elements, Markdown{
+				Tag: "markdown",
+				Content: fmt.Sprintf(
+					"<font color=\"grey\">To</font>\n%s",
+					strings.Join(to, "\n"),
+				),
+				TextAlign: "left",
+				TextSize:  "custom",
+				Margin:    "0px 0px 0px 0px",
+				Icon: &Icon{
+					Tag:   "standard_icon",
+					Token: "mail_outlined",
+					Color: "blue",
+				},
+			})
+		}
+
 		if email.Subject != "" {
 			row.Columns[1].Elements = []Markdown{{
 				Tag: "markdown",

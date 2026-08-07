@@ -82,7 +82,7 @@ func Build(n *modules.Notification, codeBlocks []string) ([]slack.Block, error) 
 	// Email metadata if available
 	if n.Event.Meta.SMTP != nil {
 		email := n.Event.Meta.SMTP.Email
-		var fromField, subjectField *slack.TextBlockObject
+		var fromField, toField, subjectField *slack.TextBlockObject
 
 		if len(email.From) > 0 {
 			var emails []string
@@ -96,6 +96,13 @@ func Build(n *modules.Notification, codeBlocks []string) ([]slack.Block, error) 
 			}
 		}
 
+		if to := n.Event.Meta.SMTP.Recipients(); len(to) > 0 {
+			toField = &slack.TextBlockObject{
+				Type: slack.MarkdownType,
+				Text: fmt.Sprintf(":incoming_envelope: *To*\n%s", strings.Join(to, "\n")),
+			}
+		}
+
 		if email.Subject != "" {
 			subjectField = &slack.TextBlockObject{
 				Type: slack.MarkdownType,
@@ -103,10 +110,13 @@ func Build(n *modules.Notification, codeBlocks []string) ([]slack.Block, error) 
 			}
 		}
 
-		if fromField != nil || subjectField != nil {
+		if fromField != nil || toField != nil || subjectField != nil {
 			fields := make([]*slack.TextBlockObject, 0)
 			if fromField != nil {
 				fields = append(fields, fromField)
+			}
+			if toField != nil {
+				fields = append(fields, toField)
 			}
 			if subjectField != nil {
 				fields = append(fields, subjectField)

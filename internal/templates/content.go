@@ -186,6 +186,9 @@ var notificationBody = `
 {{- range $from := $smtp.Email.From }}
 👤 <bold>From:</bold> <code>{{ $from.Address }}</code>
 {{- end }}
+{{- range $to := $smtp.Recipients }}
+📨 <bold>To:</bold> <code>{{ $to }}</code>
+{{- end }}
 {{- if $smtp.Email.Subject }}
 💬 <bold>Subject:</bold> {{ $smtp.Email.Subject }}
 {{- end }}
